@@ -7,7 +7,7 @@
 
 namespace KumaGL
 {
-    class VAO : public GLObject
+    class VAO
     {
     public:
         VAO();
@@ -17,21 +17,29 @@ namespace KumaGL
         VAO(const VAO &) = delete;
         VAO &operator=(const VAO &) = delete;
 
-        void Generate();
-        void Delete();
         void Bind() const;
-        void Unbind() const;
 
-        void ConfigureVertexAttribute(VBO &aBuffer, GLuint aIndex, GLint aSize,
-                                      GLenum aType, GLboolean aNormalized,
-                                      GLsizei aStride, const void *aOffset) const;
-        void ConfigureVertexAttributeWithDivisor(VBO &aBuffer, GLuint aIndex,
-                                                 GLint aSize, GLenum aType,
+        void ConfigureVertexAttribute(VBO &aBuffer,
+                                      GLuint aIndex,
+                                      GLint aSize,
+                                      GLenum aType,
+                                      GLboolean aNormalized,
+                                      GLsizei aStride,
+                                      const void *aOffset) const;
+        void ConfigureVertexAttributeWithDivisor(VBO &aBuffer,
+                                                 GLuint aIndex,
+                                                 GLint aSize,
+                                                 GLenum aType,
                                                  GLboolean aNormalized,
-                                                 GLsizei aStride, const void *aOffset,
+                                                 GLsizei aStride,
+                                                 const void *aOffset,
                                                  GLuint aDivisor) const;
 
         void SetElementBuffer(VBO &aBuffer) const;
+
+    private:
+        bool mValid;
+        GLuint mID;
     };
 } // namespace KumaGL
 

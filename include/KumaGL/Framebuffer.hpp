@@ -3,13 +3,12 @@
 
 #include "KumaGL.hpp"
 
-#include "GLObject.hpp"
 #include "Renderbuffer.hpp"
 #include "Texture.hpp"
 
 namespace KumaGL
 {
-    class Framebuffer : public GLObject
+    class Framebuffer
     {
     public:
         Framebuffer();
@@ -19,17 +18,21 @@ namespace KumaGL
         Framebuffer(const Framebuffer &aBuffer) = delete;
         Framebuffer &operator=(const Framebuffer &aBuffer) = delete;
 
-        void Generate();
-        void Delete();
-        void Bind(GLenum aTarget = GL_FRAMEBUFFER) const;
-        void Unbind(GLenum aTarget = GL_FRAMEBUFFER) const;
+        GLuint GetID() const { return mID; }
 
-        void AttachTexture(const Texture &aTexture, GLenum aTarget = GL_FRAMEBUFFER,
+        void Bind(GLenum aTarget = GL_FRAMEBUFFER) const;
+
+        void AttachTexture(const Texture &aTexture,
+                           GLenum aTarget = GL_FRAMEBUFFER,
                            GLenum aAttachmentType = GL_COLOR_ATTACHMENT0,
                            GLenum aTextureType = GL_TEXTURE_2D) const;
-        void AttachRenderbuffer(
-            const Renderbuffer &aBuffer, GLenum aTarget = GL_FRAMEBUFFER,
-            GLenum aAttachmentType = GL_DEPTH_STENCIL_ATTACHMENT) const;
+        void AttachRenderbuffer(const Renderbuffer &aBuffer,
+                                GLenum aTarget = GL_FRAMEBUFFER,
+                                GLenum aAttachmentType = GL_DEPTH_STENCIL_ATTACHMENT) const;
+
+    private:
+        GLuint mID;
+        bool mValid;
     };
 } // namespace KumaGL
 

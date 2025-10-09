@@ -6,46 +6,42 @@
 namespace KumaGL
 {
     /******************************************************************************/
-    VBO::VBO() { Generate(); }
+    VBO::VBO() : mValid(false),
+                 mID(0)
+    {
+        glGenBuffers(1, &mID);
+        mValid = true;
+    }
 
     /******************************************************************************/
-    VBO::~VBO() { Delete(); }
+    VBO::~VBO()
+    {
+        if (mValid)
+        {
+            glDeleteBuffers(1, &mID);
+            mValid = false;
+        }
+    }
 
     /******************************************************************************/
-    VBO::VBO(VBO &&aBuffer) : GLObject(std::move(aBuffer)) {}
+    VBO::VBO(VBO &&aBuffer)
+    {
+        mID = aBuffer.mID;
+        mValid = true;
+        aBuffer.mValid = false;
+    }
 
     /******************************************************************************/
     VBO &VBO::operator=(VBO &&aBuffer)
     {
-        Delete();
-        GLObject::operator=(std::move(aBuffer));
+        mID = aBuffer.mID;
+        mValid = true;
+        aBuffer.mValid = false;
         return *this;
     }
 
     /******************************************************************************/
-    void VBO::Generate()
-    {
-        if (!mID)
-        {
-            glGenBuffers(1, &mID);
-        }
-    }
-
-    /******************************************************************************/
-    void VBO::Delete()
-    {
-        if (mID)
-        {
-            glDeleteBuffers(1, &mID);
-            mID = 0;
-        }
-    }
-
-    /******************************************************************************/
     void VBO::Bind(GLenum aTarget) const { glBindBuffer(aTarget, mID); }
-
-    /******************************************************************************/
-    void VBO::Unbind(GLenum aTarget) const { glBindBuffer(aTarget, 0); }
 
     /******************************************************************************/
     void VBO::CopyData(GLenum aTarget, GLsizeiptr aSize, const void *aData,
@@ -53,7 +49,6 @@ namespace KumaGL
     {
         Bind(aTarget);
         glBufferData(aTarget, aSize, aData, aUsage);
-        Unbind(aTarget);
     }
 
     /******************************************************************************/
@@ -62,6 +57,5 @@ namespace KumaGL
     {
         Bind(aTarget);
         glBufferSubData(aTarget, aOffset, aSize, aData);
-        Unbind(aTarget);
     }
 } // namespace KumaGL

@@ -7,54 +7,52 @@
 namespace KumaGL
 {
     /******************************************************************************/
-    Renderbuffer::Renderbuffer() { Generate(); }
+    Renderbuffer::Renderbuffer() : mID(0),
+                                   mValid(false)
+    {
+        glGenRenderbuffers(1, &mID);
+        mValid = true;
+    }
 
     /******************************************************************************/
-    Renderbuffer::~Renderbuffer() { Delete(); }
+    Renderbuffer::~Renderbuffer()
+    {
+        glDeleteRenderbuffers(1, &mID);
+        mValid = false;
+    }
 
     /******************************************************************************/
     Renderbuffer::Renderbuffer(Renderbuffer &&aBuffer)
-        : GLObject(std::move(aBuffer)) {}
+    {
+        mID = aBuffer.mID;
+        mValid = true;
+        aBuffer.mValid = false;
+    }
 
     /******************************************************************************/
     Renderbuffer &Renderbuffer::operator=(Renderbuffer &&aBuffer)
     {
-        Delete();
-        GLObject::operator=(std::move(aBuffer));
+        mID = aBuffer.mID;
+        mValid = true;
+        aBuffer.mValid = false;
         return *this;
     }
 
     /******************************************************************************/
-    void Renderbuffer::Generate()
+    void Renderbuffer::Bind() const
     {
-        if (!mID)
+        if (mValid)
         {
-            glGenRenderbuffers(1, &mID);
+            glBindRenderbuffer(GL_RENDERBUFFER, mID);
         }
     }
 
     /******************************************************************************/
-    void Renderbuffer::Delete()
-    {
-        if (mID)
-        {
-            glDeleteRenderbuffers(1, &mID);
-            mID = 0;
-        }
-    }
-
-    /******************************************************************************/
-    void Renderbuffer::Bind() const { glBindRenderbuffer(GL_RENDERBUFFER, mID); }
-
-    /******************************************************************************/
-    void Renderbuffer::Unbind() const { glBindRenderbuffer(GL_RENDERBUFFER, 0); }
-
-    /******************************************************************************/
-    void Renderbuffer::SetStorageParameters(GLenum aStorageFormat, GLsizei aWidth,
+    void Renderbuffer::SetStorageParameters(GLenum aStorageFormat,
+                                            GLsizei aWidth,
                                             GLsizei aHeight) const
     {
         Bind();
         glRenderbufferStorage(GL_RENDERBUFFER, aStorageFormat, aWidth, aHeight);
-        Unbind();
     }
 } // namespace KumaGL

@@ -3,11 +3,9 @@
 
 #include "KumaGL.hpp"
 
-#include "GLObject.hpp"
-
 namespace KumaGL
 {
-    class Renderbuffer : public GLObject
+    class Renderbuffer
     {
     public:
         Renderbuffer();
@@ -17,13 +15,17 @@ namespace KumaGL
         Renderbuffer(const Renderbuffer &) = delete;
         Renderbuffer &operator=(const Renderbuffer &) = delete;
 
-        void Generate();
-        void Delete();
-        void Bind() const;
-        void Unbind() const;
+        GLuint GetID() const { return mID; }
 
-        void SetStorageParameters(GLenum aStorageFormat, GLsizei aWidth,
+        void Bind() const;
+
+        void SetStorageParameters(GLenum aStorageFormat,
+                                  GLsizei aWidth,
                                   GLsizei aHeight) const;
+
+    private:
+        GLuint mID;
+        bool mValid;
     };
 } // namespace KumaGL
 

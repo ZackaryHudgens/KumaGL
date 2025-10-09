@@ -3,11 +3,11 @@
 
 #include <string>
 
-#include "GLObject.hpp"
+#include "KumaGL.hpp"
 
 namespace KumaGL
 {
-    class Texture : public GLObject
+    class Texture
     {
     public:
         Texture();
@@ -17,10 +17,7 @@ namespace KumaGL
         Texture(const Texture &aTexture) = delete;
         Texture &operator=(const Texture &aTexture) = delete;
 
-        void Generate();
-        void Delete();
         void Bind(GLenum aTextureUnit = GL_TEXTURE0) const;
-        void Unbind() const;
 
         void LoadFromFile(const std::string &aFile, GLint aLoadFormat = GL_RGBA,
                           GLenum aType = GL_UNSIGNED_BYTE);
@@ -38,10 +35,14 @@ namespace KumaGL
 
         GLsizei GetWidth() const { return mWidth; }
         GLsizei GetHeight() const { return mHeight; }
+        GLuint GetID() const { return mID; }
 
     private:
-        GLsizei mWidth{0};
-        GLsizei mHeight{0};
+        GLsizei mWidth;
+        GLsizei mHeight;
+
+        GLuint mID;
+        bool mValid;
     };
 } // namespace KumaGL
 

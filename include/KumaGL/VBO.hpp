@@ -15,15 +15,16 @@ namespace KumaGL
         VBO(const VBO &) = delete;
         VBO &operator=(const VBO &) = delete;
 
-        void Generate();
-        void Delete();
         void Bind(GLenum aTarget) const;
-        void Unbind(GLenum aTarget) const;
 
         void CopyData(GLenum aTarget, GLsizeiptr aSize, const void *aData,
                       GLenum aUsage) const;
         void CopySubData(GLenum aTarget, GLintptr aOffset, GLsizeiptr aSize,
                          const void *aData) const;
+
+    private:
+        bool mValid;
+        GLuint mID;
     };
 } // namespace KumaGL
 

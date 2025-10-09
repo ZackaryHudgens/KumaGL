@@ -6,52 +6,47 @@
 namespace KumaGL
 {
     /******************************************************************************/
-    Framebuffer::Framebuffer() { Generate(); }
+    Framebuffer::Framebuffer() : mID(0),
+                                 mValid(false)
+    {
+        glGenFramebuffers(1, &mID);
+        mValid = true;
+    }
 
     /******************************************************************************/
-    Framebuffer::~Framebuffer() { Delete(); }
+    Framebuffer::~Framebuffer()
+    {
+        if (mValid)
+        {
+            glDeleteFramebuffers(1, &mID);
+            mValid = false;
+        }
+    }
 
     /******************************************************************************/
     Framebuffer::Framebuffer(Framebuffer &&aBuffer)
-        : GLObject(std::move(aBuffer)) {}
+    {
+        mID = aBuffer.mID;
+        mValid = true;
+        aBuffer.mValid = false;
+    }
 
     /******************************************************************************/
     Framebuffer &Framebuffer::operator=(Framebuffer &&aBuffer)
     {
-        Delete();
-        GLObject::operator=(std::move(aBuffer));
+        mID = aBuffer.mID;
+        mValid = true;
+        aBuffer.mValid = false;
         return *this;
-    }
-
-    /******************************************************************************/
-    void Framebuffer::Generate()
-    {
-        if (!mID)
-        {
-            glGenFramebuffers(1, &mID);
-        }
-    }
-
-    /******************************************************************************/
-    void Framebuffer::Delete()
-    {
-        if (mID)
-        {
-            glDeleteFramebuffers(1, &mID);
-            mID = 0;
-        }
     }
 
     /******************************************************************************/
     void Framebuffer::Bind(GLenum aTarget) const
     {
-        glBindFramebuffer(aTarget, mID);
-    }
-
-    /******************************************************************************/
-    void Framebuffer::Unbind(GLenum aTarget) const
-    {
-        glBindFramebuffer(aTarget, 0);
+        if (mValid)
+        {
+            glBindFramebuffer(aTarget, mID);
+        }
     }
 
     /******************************************************************************/
@@ -60,9 +55,10 @@ namespace KumaGL
                                     GLenum aTextureType) const
     {
         Bind(aTarget);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, aAttachmentType, aTextureType,
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                               aAttachmentType,
+                               aTextureType,
                                aTexture.GetID(), 0);
-        Unbind(aTarget);
     }
 
     /******************************************************************************/
@@ -71,8 +67,9 @@ namespace KumaGL
                                          GLenum aAttachmentType) const
     {
         Bind(aTarget);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, aAttachmentType, GL_RENDERBUFFER,
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                  aAttachmentType,
+                                  GL_RENDERBUFFER,
                                   aBuffer.GetID());
-        Unbind(aTarget);
     }
 } // namespace KumaGL

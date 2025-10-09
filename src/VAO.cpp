@@ -6,46 +6,42 @@
 namespace KumaGL
 {
     /******************************************************************************/
-    VAO::VAO() { Generate(); }
+    VAO::VAO() : mValid(false),
+                 mID(0)
+    {
+        glGenVertexArrays(1, &mID);
+        mValid = true;
+    }
 
     /******************************************************************************/
-    VAO::~VAO() { Delete(); }
+    VAO::~VAO()
+    {
+        if (mValid)
+        {
+            glDeleteVertexArrays(1, &mID);
+            mValid = false;
+        }
+    }
 
     /******************************************************************************/
-    VAO::VAO(VAO &&aObject) : GLObject(std::move(aObject)) {}
+    VAO::VAO(VAO &&aObject)
+    {
+        mID = aObject.mID;
+        mValid = true;
+        aObject.mValid = false;
+    }
 
     /******************************************************************************/
     VAO &VAO::operator=(VAO &&aObject)
     {
-        Delete();
-        GLObject::operator=(std::move(aObject));
+        mID = aObject.mID;
+        mValid = true;
+        aObject.mValid = false;
         return *this;
     }
 
     /******************************************************************************/
-    void VAO::Generate()
-    {
-        if (!mID)
-        {
-            glGenVertexArrays(1, &mID);
-        }
-    }
-
-    /******************************************************************************/
-    void VAO::Delete()
-    {
-        if (mID)
-        {
-            glDeleteVertexArrays(1, &mID);
-            mID = 0;
-        }
-    }
-
-    /******************************************************************************/
     void VAO::Bind() const { glBindVertexArray(mID); }
-
-    /******************************************************************************/
-    void VAO::Unbind() const { glBindVertexArray(0); }
 
     /******************************************************************************/
     void VAO::ConfigureVertexAttribute(VBO &aBuffer, GLuint aIndex, GLint aSize,
@@ -56,8 +52,6 @@ namespace KumaGL
         aBuffer.Bind(GL_ARRAY_BUFFER);
         glEnableVertexAttribArray(aIndex);
         glVertexAttribPointer(aIndex, aSize, aType, aNormalized, aStride, aOffset);
-        aBuffer.Unbind(GL_ARRAY_BUFFER);
-        Unbind();
     }
 
     /******************************************************************************/
@@ -73,8 +67,6 @@ namespace KumaGL
         glEnableVertexAttribArray(aIndex);
         glVertexAttribPointer(aIndex, aSize, aType, aNormalized, aStride, aOffset);
         glVertexAttribDivisor(aIndex, aDivisor);
-        aBuffer.Unbind(GL_ARRAY_BUFFER);
-        Unbind();
     }
 
     /******************************************************************************/
@@ -82,7 +74,5 @@ namespace KumaGL
     {
         Bind();
         aBuffer.Bind(GL_ELEMENT_ARRAY_BUFFER);
-        Unbind();
-        aBuffer.Unbind(GL_ELEMENT_ARRAY_BUFFER);
     }
 } // namespace KumaGL

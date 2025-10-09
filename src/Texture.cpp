@@ -7,58 +7,56 @@
 namespace KumaGL
 {
     /******************************************************************************/
-    Texture::Texture() { Generate(); }
+    Texture::Texture() : mWidth(0),
+                         mHeight(0),
+                         mID(0),
+                         mValid(false)
+    {
+        glGenTextures(1, &mID);
+        mValid = true;
+    }
 
     /******************************************************************************/
-    Texture::~Texture() { Delete(); }
+    Texture::~Texture()
+    {
+        if (mValid)
+        {
+            glDeleteTextures(1, &mID);
+            mValid = false;
+        }
+    }
 
     /******************************************************************************/
-    Texture::Texture(Texture &&aTexture) : GLObject(std::move(aTexture))
+    Texture::Texture(Texture &&aTexture)
     {
         mWidth = aTexture.mWidth;
         mHeight = aTexture.mHeight;
+        mID = aTexture.mID;
+        mValid = true;
+        aTexture.mValid = false;
     }
 
     /******************************************************************************/
     Texture &Texture::operator=(Texture &&aTexture)
     {
-        Delete();
-        GLObject::operator=(std::move(aTexture));
         mWidth = aTexture.mWidth;
         mHeight = aTexture.mHeight;
-
+        mID = aTexture.mID;
+        mValid = true;
+        aTexture.mValid = false;
         return *this;
-    }
-
-    /******************************************************************************/
-    void Texture::Generate()
-    {
-        if (!mID)
-        {
-            glGenTextures(1, &mID);
-        }
-    }
-
-    /******************************************************************************/
-    void Texture::Delete()
-    {
-        if (mID)
-        {
-            glDeleteTextures(1, &mID);
-            mID = 0;
-        }
     }
 
     /******************************************************************************/
     void Texture::Bind(GLenum aTextureUnit) const
     {
-        glActiveTexture(aTextureUnit);
-        glBindTexture(GL_TEXTURE_2D, mID);
-        glActiveTexture(GL_TEXTURE0);
+        if (mValid)
+        {
+            glActiveTexture(aTextureUnit);
+            glBindTexture(GL_TEXTURE_2D, mID);
+            glActiveTexture(GL_TEXTURE0);
+        }
     }
-
-    /******************************************************************************/
-    void Texture::Unbind() const { glBindTexture(GL_TEXTURE_2D, 0); }
 
     /******************************************************************************/
     void Texture::LoadFromFile(const std::string &aFile, GLint aLoadFormat,
@@ -84,7 +82,6 @@ namespace KumaGL
         Bind();
         glTexImage2D(GL_TEXTURE_2D, 0, aLoadFormat, mWidth, mHeight, 0, aLoadFormat,
                      aType, aData);
-        Unbind();
     }
 
     /******************************************************************************/
@@ -95,7 +92,6 @@ namespace KumaGL
         Bind();
         glTexSubImage2D(GL_TEXTURE_2D, 0, aXOffset, aYOffset, aWidth, aHeight,
                         aFormat, aType, aData);
-        Unbind();
     }
 
     /******************************************************************************/
@@ -103,7 +99,6 @@ namespace KumaGL
     {
         Bind();
         glTexParameteri(GL_TEXTURE_2D, aParam, aValue);
-        Unbind();
     }
 
     /******************************************************************************/
@@ -111,7 +106,6 @@ namespace KumaGL
     {
         Bind();
         glTexParameterf(GL_TEXTURE_2D, aParam, aValue);
-        Unbind();
     }
 
     /******************************************************************************/
@@ -119,6 +113,5 @@ namespace KumaGL
     {
         Bind();
         glGenerateMipmap(GL_TEXTURE_2D);
-        Unbind();
     }
 } // namespace KumaGL

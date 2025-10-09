@@ -4,51 +4,51 @@
 #include <iostream>
 #include <sstream>
 
-#include "KumaGL/GLObject.hpp"
-
 namespace KumaGL
 {
     /******************************************************************************/
-    Shader::Shader() { Generate(); }
+    Shader::Shader() : mID(0),
+                       mValid(false)
+    {
+        mID = glCreateProgram();
+        mValid = true;
+    }
 
     /******************************************************************************/
-    Shader::~Shader() { Delete(); }
+    Shader::~Shader()
+    {
+        if (mValid)
+        {
+            glDeleteProgram(mID);
+            mValid = false;
+        }
+    }
 
     /******************************************************************************/
-    Shader::Shader(Shader &&aShader) : GLObject(std::move(aShader)) {}
+    Shader::Shader(Shader &&aShader)
+    {
+        mID = aShader.mID;
+        mValid = true;
+        aShader.mValid = false;
+    }
 
     /******************************************************************************/
     Shader &Shader::operator=(Shader &&aShader)
     {
-        Delete();
-        GLObject::operator=(std::move(aShader));
+        mID = aShader.mID;
+        mValid = true;
+        aShader.mValid = false;
         return *this;
     }
 
     /******************************************************************************/
-    void Shader::Generate()
+    void Shader::Use() const
     {
-        if (!mID)
+        if (mValid)
         {
-            mID = glCreateProgram();
+            glUseProgram(mID);
         }
     }
-
-    /******************************************************************************/
-    void Shader::Delete()
-    {
-        if (mID)
-        {
-            glDeleteProgram(mID);
-            mID = 0;
-        }
-    }
-
-    /******************************************************************************/
-    void Shader::Bind() const { glUseProgram(mID); }
-
-    /******************************************************************************/
-    void Shader::Unbind() const { glUseProgram(0); }
 
     /******************************************************************************/
     void Shader::LoadFromFiles(const std::string &aVertexFile,
@@ -73,9 +73,8 @@ namespace KumaGL
                                 const std::string &aFragmentSource)
     {
         // First, compile the shaders.
-        unsigned int vertexID, fragmentID;
-        CompileShader(vertexID, aVertexSource, ShaderType::eVERTEX);
-        CompileShader(fragmentID, aFragmentSource, ShaderType::eFRAGMENT);
+        GLuint vertexID = CompileShader(aVertexSource, ShaderType::eVERTEX);
+        GLuint fragmentID = CompileShader(aFragmentSource, ShaderType::eFRAGMENT);
 
         // Then, create and link the shader program.
         LinkProgram(vertexID, fragmentID);
@@ -89,76 +88,71 @@ namespace KumaGL
     /******************************************************************************/
     void Shader::SetInt(const std::string &aName, int aValue) const
     {
-        Bind();
         int loc = glGetUniformLocation(mID, aName.c_str());
         glUniform1i(loc, aValue);
-        Unbind();
     }
 
     /******************************************************************************/
     void Shader::SetFloat(const std::string &aName, float aValue) const
     {
-        Bind();
         int loc = glGetUniformLocation(mID, aName.c_str());
         glUniform1f(loc, aValue);
-        Unbind();
     }
 
     /******************************************************************************/
     void Shader::SetVec3(const std::string &aName, const Vec3 &aValue) const
     {
-        Bind();
         int loc = glGetUniformLocation(mID, aName.c_str());
         glUniform3fv(loc, 1, &aValue.x);
-        Unbind();
     }
 
     /******************************************************************************/
     void Shader::SetMat4(const std::string &aName, const Mat4 &aValue) const
     {
-        Bind();
         int loc = glGetUniformLocation(mID, aName.c_str());
         glUniformMatrix4fv(loc, 1, GL_FALSE, aValue.GetData());
-        Unbind();
     }
 
     /******************************************************************************/
-    void Shader::CompileShader(unsigned int &aID, const std::string &aSource,
-                               ShaderType aType)
+    GLuint Shader::CompileShader(const std::string &aSource,
+                                 ShaderType aType)
     {
+        GLuint id;
         const char *source = aSource.c_str();
 
         switch (aType)
         {
         case ShaderType::eVERTEX:
         {
-            aID = glCreateShader(GL_VERTEX_SHADER);
+            id = glCreateShader(GL_VERTEX_SHADER);
             break;
         }
         case ShaderType::eFRAGMENT:
         {
-            aID = glCreateShader(GL_FRAGMENT_SHADER);
+            id = glCreateShader(GL_FRAGMENT_SHADER);
             break;
         }
         }
 
-        glShaderSource(aID, 1, &source, NULL);
-        glCompileShader(aID);
+        glShaderSource(id, 1, &source, NULL);
+        glCompileShader(id);
 
         // Check for compile errors.
         int success;
         char infoLog[512];
-        glGetShaderiv(aID, GL_COMPILE_STATUS, &success);
+        glGetShaderiv(id, GL_COMPILE_STATUS, &success);
         if (!success)
         {
-            glGetShaderInfoLog(aID, 512, NULL, infoLog);
+            glGetShaderInfoLog(id, 512, NULL, infoLog);
             std::cout << "Error compiling shader!\n"
                       << infoLog << std::endl;
         }
+
+        return id;
     }
 
     /******************************************************************************/
-    void Shader::LinkProgram(unsigned int aVertexID, unsigned int aFragmentID)
+    void Shader::LinkProgram(GLuint aVertexID, GLuint aFragmentID)
     {
         glAttachShader(mID, aVertexID);
         glAttachShader(mID, aFragmentID);

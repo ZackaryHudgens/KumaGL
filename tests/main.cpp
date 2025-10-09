@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-int main() {
+int main()
+{
   std::cout << "-------------------------------------" << std::endl;
   std::cout << "Testing Vec3 addition..." << std::endl;
   KumaGL::TestVec3Addition();

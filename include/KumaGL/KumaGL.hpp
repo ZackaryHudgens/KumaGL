@@ -3,16 +3,19 @@
 
 #include "glad/gl.h"
 
-namespace KumaGL {
-/******************************************************************************/
-inline bool InitKumaGL(GLADloadfunc aFunc) {
-  bool success = true;
-  if (gladLoadGL(aFunc) == 0) {
-    success = false;
-  }
+namespace KumaGL
+{
+  /******************************************************************************/
+  inline bool InitKumaGL(GLADloadfunc aFunc)
+  {
+    bool success = true;
+    if (gladLoadGL(aFunc) == 0)
+    {
+      success = false;
+    }
 
-  return success;
-}
+    return success;
+  }
 } // namespace KumaGL
 
 #endif // !KUMAGL_HPP

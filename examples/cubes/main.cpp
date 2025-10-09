@@ -67,13 +67,6 @@ struct RenderInfo
         mCubeTexture.GenerateMipmap();
         mCubeTexture.Bind(GL_TEXTURE0);
     }
-
-    void Delete()
-    {
-        mCubeMesh.Delete();
-        mCubeShader.Delete();
-        mCubeTexture.Delete();
-    }
 };
 
 /******************************************************************************/
@@ -120,9 +113,8 @@ struct Scene
 
     void Render(RenderInfo &aInfo, KumaGL::Shader &aShader)
     {
-        aShader.Bind();
+        aShader.Use();
         aInfo.mCubeMesh.DrawInstanced(mCubeTransforms.size());
-        aShader.Unbind();
     }
 };
 
@@ -242,8 +234,6 @@ int main()
         scene.PreRender(info);
         scene.Render(info, info.mCubeShader);
     }
-
-    info.Delete();
 
     glfwTerminate();
 

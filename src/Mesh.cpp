@@ -8,16 +8,6 @@ namespace KumaGL
     Mesh::Mesh() { Configure(); }
 
     /******************************************************************************/
-    void Mesh::Generate()
-    {
-        mVertexArray.Generate();
-        mVertexBuffer.Generate();
-        mInstanceBuffer.Generate();
-        mCustomBuffer.Generate();
-        mElementBuffer.Generate();
-    }
-
-    /******************************************************************************/
     void Mesh::Configure()
     {
         // Configure the vertex attributes.
@@ -52,21 +42,10 @@ namespace KumaGL
     }
 
     /******************************************************************************/
-    void Mesh::Delete()
-    {
-        mVertexArray.Delete();
-        mVertexBuffer.Delete();
-        mInstanceBuffer.Delete();
-        mCustomBuffer.Delete();
-        mElementBuffer.Delete();
-    }
-
-    /******************************************************************************/
     void Mesh::Draw(GLenum aMode) const
     {
         mVertexArray.Bind();
         glDrawElements(aMode, mIndices.size(), GL_UNSIGNED_INT, 0);
-        mVertexArray.Unbind();
     }
 
     /******************************************************************************/
@@ -75,7 +54,6 @@ namespace KumaGL
         mVertexArray.Bind();
         glDrawElementsInstanced(aMode, mIndices.size(), GL_UNSIGNED_INT, 0,
                                 aNumInstances);
-        mVertexArray.Unbind();
     }
 
     /******************************************************************************/

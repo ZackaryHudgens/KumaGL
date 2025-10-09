@@ -20,12 +20,14 @@ int windowHeight = 720;
 bool debugMode = false;
 
 /******************************************************************************/
-struct Transform {
+struct Transform
+{
   KumaGL::Vec3 mPosition;
   KumaGL::Vec3 mRotation;
   KumaGL::Vec3 mScale{1, 1, 1};
 
-  KumaGL::Mat4 GetMatrix() const {
+  KumaGL::Mat4 GetMatrix() const
+  {
     KumaGL::Mat4 mat;
     mat.Translate(mPosition);
     mat.Rotate(mRotation);
@@ -35,7 +37,8 @@ struct Transform {
 };
 
 /******************************************************************************/
-struct RenderInfo {
+struct RenderInfo
+{
   KumaGL::Shader mCubeShader;
   KumaGL::Shader mDepthShader;
   KumaGL::Shader mDebugShader;
@@ -50,7 +53,8 @@ struct RenderInfo {
 
   KumaGL::Framebuffer mShadowBuffer;
 
-  void Setup() {
+  void Setup()
+  {
     // Configure the shaders.
     mCubeShader.LoadFromFiles("resources/shaders/Shader.vert",
                               "resources/shaders/Shader.frag");
@@ -102,7 +106,8 @@ struct RenderInfo {
     mShadowBuffer.Unbind();
   }
 
-  void Delete() {
+  void Delete()
+  {
     mCubeShader.Delete();
     mDepthShader.Delete();
     mDebugShader.Delete();
@@ -120,12 +125,14 @@ struct RenderInfo {
 };
 
 /******************************************************************************/
-struct Scene {
+struct Scene
+{
   Transform mPlaneTransform;
   Transform mLightTransform;
   std::array<Transform, 5> mCubeTransforms;
 
-  void Setup() {
+  void Setup()
+  {
     mPlaneTransform.mPosition.y = 3;
     mPlaneTransform.mPosition.z = -20;
     mPlaneTransform.mScale.x = 10;
@@ -140,18 +147,22 @@ struct Scene {
     mCubeTransforms[4].mPosition = KumaGL::Vec3(0, -2, -10);
   }
 
-  void Update() {
+  void Update()
+  {
     // Rotate each transform.
-    for (auto &transform : mCubeTransforms) {
-      transform.mRotation.x += 1;
-      transform.mRotation.y += 1;
+    for (auto &transform : mCubeTransforms)
+    {
+      transform.mRotation.x += 0.5;
+      transform.mRotation.y += 0.5;
     }
   }
 
-  void PreRender(RenderInfo &aInfo) {
+  void PreRender(RenderInfo &aInfo)
+  {
     // Add each transformation matrix to a vector.
     std::vector<KumaGL::Mat4> matrices;
-    for (const auto &transform : mCubeTransforms) {
+    for (const auto &transform : mCubeTransforms)
+    {
       matrices.emplace_back(transform.GetMatrix());
     }
 
@@ -169,34 +180,41 @@ struct Scene {
     aInfo.mCubeShader.SetVec3("lightPos", mLightTransform.mPosition);
   }
 
-  void Render(const RenderInfo &aInfo) {
+  void Render(const RenderInfo &aInfo)
+  {
     aInfo.mCubeMesh.DrawInstanced(mCubeTransforms.size());
     aInfo.mQuadMesh.DrawInstanced(1);
   }
 };
 
 /******************************************************************************/
-void FramebufferSizeCallback(GLFWwindow *aWindow, int aWidth, int aHeight) {
+void FramebufferSizeCallback(GLFWwindow *aWindow, int aWidth, int aHeight)
+{
   windowWidth = aWidth;
   windowHeight = aHeight;
 }
 
 /******************************************************************************/
 void KeyPressCallback(GLFWwindow *aWindow, int aKey, int aScancode, int aAction,
-                      int aMods) {
-  if (aAction == GLFW_PRESS) {
-    if (aKey == GLFW_KEY_D) {
+                      int aMods)
+{
+  if (aAction == GLFW_PRESS)
+  {
+    if (aKey == GLFW_KEY_D)
+    {
       debugMode = !debugMode;
     }
   }
 }
 
 /******************************************************************************/
-GLFWwindow *CreateWindow() {
+GLFWwindow *CreateWindow()
+{
   GLFWwindow *window = nullptr;
 
   // Initialize GLFW.
-  if (!glfwInit()) {
+  if (!glfwInit())
+  {
     std::cout << "Failed to initialize GLFW!" << std::endl;
     return window;
   }
@@ -219,7 +237,8 @@ GLFWwindow *CreateWindow() {
   // Create a new window.
   window =
       glfwCreateWindow(windowWidth, windowHeight, "shadows", nullptr, nullptr);
-  if (window == nullptr) {
+  if (window == nullptr)
+  {
     std::cout << "Failed to create window!" << std::endl;
     return window;
   }
@@ -235,8 +254,10 @@ GLFWwindow *CreateWindow() {
 }
 
 /******************************************************************************/
-bool InitializeGL() {
-  if (!KumaGL::InitKumaGL(glfwGetProcAddress)) {
+bool InitializeGL()
+{
+  if (!KumaGL::InitKumaGL(glfwGetProcAddress))
+  {
     std::cout << "Failed to initialize KumaGL!" << std::endl;
     return false;
   }
@@ -248,14 +269,17 @@ bool InitializeGL() {
 }
 
 /******************************************************************************/
-int main() {
+int main()
+{
   auto window = CreateWindow();
-  if (window == nullptr) {
+  if (window == nullptr)
+  {
     return -1;
   }
 
   auto success = InitializeGL();
-  if (!success) {
+  if (!success)
+  {
     return -1;
   }
 
@@ -266,7 +290,8 @@ int main() {
   scene.Setup();
 
   // Run until instructed to close.
-  while (!glfwWindowShouldClose(window)) {
+  while (!glfwWindowShouldClose(window))
+  {
     glfwPollEvents();
     glfwSwapBuffers(window);
 
@@ -299,7 +324,8 @@ int main() {
     scene.Render(info);
     info.mShadowBuffer.Unbind();
 
-    if (debugMode) {
+    if (debugMode)
+    {
       // Render the debug map to the screen.
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       glViewport(0, 0, windowWidth, windowHeight);
@@ -307,7 +333,9 @@ int main() {
       info.mDebugShader.Bind();
       info.mDebugMesh.DrawInstanced(1);
       info.mDebugShader.Unbind();
-    } else {
+    }
+    else
+    {
       // For the second render pass, draw the scene as per usual from the
       // viewer's perspective.
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

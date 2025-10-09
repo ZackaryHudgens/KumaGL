@@ -4,6 +4,8 @@ target_link_libraries(lighting PUBLIC
   KumaGL
 )
 
+file(COPY resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 install(TARGETS lighting
   EXPORT KumaGLTargets
   RUNTIME DESTINATION ${EXAMPLE_INSTALL_DIR}/lighting

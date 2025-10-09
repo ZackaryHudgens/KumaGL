@@ -10,11 +10,13 @@
 #include <KumaGL/Texture.hpp>
 
 /******************************************************************************/
-struct Transform {
+struct Transform
+{
   KumaGL::Vec3 mPosition;
   KumaGL::Vec3 mRotation;
 
-  KumaGL::Mat4 GetMatrix() const {
+  KumaGL::Mat4 GetMatrix() const
+  {
     KumaGL::Mat4 mat;
     mat.Translate(mPosition);
     mat.Rotate(mRotation);
@@ -23,7 +25,8 @@ struct Transform {
 };
 
 /******************************************************************************/
-struct RenderInfo {
+struct RenderInfo
+{
   KumaGL::Mesh mCubeMesh;
 
   KumaGL::Shader mCubeShader;
@@ -31,7 +34,8 @@ struct RenderInfo {
   KumaGL::Texture mCubeDiffuse;
   KumaGL::Texture mCubeSpecular;
 
-  void Setup() {
+  void Setup()
+  {
     // Configure the meshes.
     mCubeMesh.InitCube();
 
@@ -62,7 +66,8 @@ struct RenderInfo {
     mCubeSpecular.Bind(GL_TEXTURE1);
   }
 
-  void Delete() {
+  void Delete()
+  {
     mCubeMesh.Delete();
     mCubeShader.Delete();
     mCubeDiffuse.Delete();
@@ -71,11 +76,13 @@ struct RenderInfo {
 };
 
 /******************************************************************************/
-struct Scene {
+struct Scene
+{
   Transform mLightTransform;
   std::array<Transform, 5> mCubeTransforms;
 
-  void Setup() {
+  void Setup()
+  {
     mLightTransform.mPosition.z = 10;
 
     mCubeTransforms[0].mPosition = KumaGL::Vec3(0, 0, -10);
@@ -85,18 +92,22 @@ struct Scene {
     mCubeTransforms[4].mPosition = KumaGL::Vec3(0, -2, -10);
   }
 
-  void Update() {
+  void Update()
+  {
     // Rotate each transform.
-    for (auto &transform : mCubeTransforms) {
-      transform.mRotation.x += 1;
-      transform.mRotation.y += 1;
+    for (auto &transform : mCubeTransforms)
+    {
+      transform.mRotation.x += 0.5;
+      transform.mRotation.y += 0.5;
     }
   }
 
-  void PreRender(RenderInfo &aInfo) {
+  void PreRender(RenderInfo &aInfo)
+  {
     // Add each transformation matrix to a vector.
     std::vector<KumaGL::Mat4> matrices;
-    for (const auto &transform : mCubeTransforms) {
+    for (const auto &transform : mCubeTransforms)
+    {
       matrices.emplace_back(transform.GetMatrix());
     }
 
@@ -109,7 +120,8 @@ struct Scene {
     aInfo.mCubeShader.SetVec3("lightPos", mLightTransform.mPosition);
   }
 
-  void Render(RenderInfo &aInfo, KumaGL::Shader &aShader) {
+  void Render(RenderInfo &aInfo, KumaGL::Shader &aShader)
+  {
     aShader.Bind();
     aInfo.mCubeMesh.DrawInstanced(mCubeTransforms.size());
     aShader.Unbind();
@@ -117,16 +129,19 @@ struct Scene {
 };
 
 /******************************************************************************/
-void FramebufferSizeCallback(GLFWwindow *aWindow, int aWidth, int aHeight) {
+void FramebufferSizeCallback(GLFWwindow *aWindow, int aWidth, int aHeight)
+{
   glViewport(0, 0, aWidth, aHeight);
 }
 
 /******************************************************************************/
-GLFWwindow *CreateWindow() {
+GLFWwindow *CreateWindow()
+{
   GLFWwindow *window = nullptr;
 
   // Initialize GLFW.
-  if (!glfwInit()) {
+  if (!glfwInit())
+  {
     std::cout << "Failed to initialize GLFW!" << std::endl;
     return window;
   }
@@ -148,7 +163,8 @@ GLFWwindow *CreateWindow() {
 
   // Create a new window.
   window = glfwCreateWindow(1280, 720, "lighting", nullptr, nullptr);
-  if (window == nullptr) {
+  if (window == nullptr)
+  {
     std::cout << "Failed to create window!" << std::endl;
     return window;
   }
@@ -163,8 +179,10 @@ GLFWwindow *CreateWindow() {
 }
 
 /******************************************************************************/
-bool InitializeGL() {
-  if (!KumaGL::InitKumaGL(glfwGetProcAddress)) {
+bool InitializeGL()
+{
+  if (!KumaGL::InitKumaGL(glfwGetProcAddress))
+  {
     std::cout << "Failed to initialize KumaGL!" << std::endl;
     return false;
   }
@@ -176,14 +194,17 @@ bool InitializeGL() {
 }
 
 /******************************************************************************/
-int main() {
+int main()
+{
   auto window = CreateWindow();
-  if (window == nullptr) {
+  if (window == nullptr)
+  {
     return -1;
   }
 
   auto success = InitializeGL();
-  if (!success) {
+  if (!success)
+  {
     return -1;
   }
 
@@ -204,7 +225,8 @@ int main() {
   info.mCubeShader.SetMat4("projectionMatrix", proj);
 
   // Run until instructed to close.
-  while (!glfwWindowShouldClose(window)) {
+  while (!glfwWindowShouldClose(window))
+  {
     glfwSwapBuffers(window);
     glfwPollEvents();
 

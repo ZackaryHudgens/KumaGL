@@ -4,6 +4,8 @@ target_link_libraries(shadows PUBLIC
   KumaGL
 )
 
+file(COPY resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 install(TARGETS shadows
   EXPORT KumaGLTargets
   RUNTIME DESTINATION ${EXAMPLE_INSTALL_DIR}/shadows

@@ -1,6 +1,8 @@
+# Add an option for using a different OpenGL Loader than GLAD.
+option(USE_INTERNAL_GLAD "Uses the version of GLAD bundled with KumaGL." ON)
+
 # Gather all the required source files.
 list(APPEND KUMAGL_SOURCES
-  glad/gl.c
   Framebuffer.cpp
   GLObject.cpp
   Mat4.cpp
@@ -12,6 +14,10 @@ list(APPEND KUMAGL_SOURCES
   VBO.cpp
   Vec3.cpp
 )
+
+if(USE_INTERNAL_GLAD)
+  list(APPEND KUMAGL_SOURCES glad/gl.c)
+endif(USE_INTERNAL_GLAD)
 
 # Create the library.
 add_library(KumaGL ${KUMAGL_SOURCES})
